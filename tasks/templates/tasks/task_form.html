@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8 offset-md-2">
+    <h2>{{ form_title }}</h2>
+    <a href="{% url 'tasks_list' %}" class="btn btn-secondary mb-3">Cancel</a>
+
+    <div class="card">
+      <div class="card-body">
+        <form id="taskForm">
+          <!-- HTML CSRF token optional, JS will handle it -->
+          <div id="formErrors" class="alert alert-danger d-none"></div>
+
+          <div class="mb-3">
+            <label for="id_title" class="form-label">Title</label>
+            <input type="text" id="id_title" class="form-control">
+          </div>
+
+          <div class="mb-3">
+            <label for="id_description" class="form-label">Description</label>
+            <textarea id="id_description" class="form-control"></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="id_status" class="form-label">Status</label>
+            <select id="id_status" class="form-select">
+              <option value="todo">To Do</option>
+              <option value="in_progress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Determine if this is update or create
+const taskId = {{ task_id|default:"null" }};
+const isUpdate = taskId !== null;
+
+// Get CSRF token from cookie
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+      const c = cookie.trim();
+      if (c.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(c.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+// Fill form if updating
+async function loadTask() {
+  if (!isUpdate) return;
+  try {
+    const res = await fetch(`/api/tasks/${taskId}/`, { credentials: 'same-origin' });
+    if (!res.ok) throw new Error('Failed to fetch task');
+    const task = await res.json();
+    document.getElementById('id_title').value = task.title;
+    document.getElementById('id_description').value = task.description || '';
+    document.getElementById('id_status').value = task.status;
+  } catch (err) {
+    console.error(err);
+    const errorDiv = document.getElementById('formErrors');
+    errorDiv.textContent = 'Failed to load task data.';
+    errorDiv.classList.remove('d-none');
+  }
+}
+
+// Handle form submit
+async function submitForm(e) {
+  e.preventDefault(); // Important! prevents normal GET/POST
+
+  const errorDiv = document.getElementById('formErrors');
+  errorDiv.classList.add('d-none');
+  errorDiv.textContent = '';
+
+  const data = {
+    title: document.getElementById('id_title').value,
+    description: document.getElementById('id_description').value,
+    status: document.getElementById('id_status').value
+  };
+
+  const url = isUpdate ? `/api/tasks/${taskId}/` : '/api/tasks/';
+  const method = isUpdate ? 'PUT' : 'POST';
+
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      const task = await res.json();
+      window.location.href = `/`; 
+    } else if (res.status === 400) {
+      const errData = await res.json();
+      errorDiv.textContent = JSON.stringify(errData);
+      errorDiv.classList.remove('d-none');
+    } else if (res.status === 403) {
+      alert('You do not have permission to perform this action.');
+    } else {
+      throw new Error('Unknown error');
+    }
+  } catch (err) {
+    console.error('Submission error:', err);
+    errorDiv.textContent = 'An error occurred. Please try again.';
+    errorDiv.classList.remove('d-none');
+  }
+}
+
+// Attach event listeners after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  loadTask();
+  document.getElementById('taskForm').addEventListener('submit', submitForm);
+});
+</script>
+{% endblock %}
