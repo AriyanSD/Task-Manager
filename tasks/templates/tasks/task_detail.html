@@ -90,14 +90,15 @@ function displayTaskDetail(task) {
                      task.status === 'in_progress' ? 'In Progress' : 
                      'To Do';
 
-  const isOwner = task.owner.username === currentUsername;
-  const actionButtons = isOwner ? `
-    <hr>
-    <div class="d-flex gap-2">
-      <a href="/task/${task.id}/update/" class="btn btn-warning">Edit Task</a>
-      <button onclick="deleteTask()" class="btn btn-danger">Delete Task</button>
-    </div>
-  ` : '';
+const isOwner = task.owner_username === currentUsername;
+const actionButtons = isOwner ? `
+  <hr>
+  <div class="d-flex gap-2">
+    <a href="/tasks/${task.id}/edit/" class="btn btn-warning">Edit Task</a>
+    <button onclick="deleteTask()" class="btn btn-danger">Delete Task</button>
+  </div>
+` : '';
+
 
   document.getElementById('taskDetailContainer').innerHTML = `
     <div class="card">

@@ -36,7 +36,7 @@ function deleteTask(id) {
 
     fetch(`/api/tasks/${id}/`, {
         method: "DELETE",
-        credentials: "include"   // important if using Django session login
+        credentials: "include"   
     })
     .then(res => {
         if (res.status === 204) {

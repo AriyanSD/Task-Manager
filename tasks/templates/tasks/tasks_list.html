@@ -95,68 +95,65 @@
   }
 
   function displayTasks(tasks) {
-    const container = document.getElementById("tasksContainer");
-    const noTasksMsg = document.getElementById("noTasksMessage");
+  const container = document.getElementById("tasksContainer");
+  const noTasksMsg = document.getElementById("noTasksMessage");
 
-    if (tasks.length === 0) {
-      container.style.display = "none";
-      noTasksMsg.style.display = "block";
-      return;
-    }
+  if (tasks.length === 0) {
+    container.style.display = "none";
+    noTasksMsg.style.display = "block";
+    return;
+  }
 
-    noTasksMsg.style.display = "none";
-    container.style.display = "flex";
-    container.innerHTML = tasks
-      .map((task) => {
-        const statusBadge =
-          task.status === "done"
-            ? "bg-success"
-            : task.status === "in_progress"
-            ? "bg-warning text-dark"
-            : "bg-secondary";
-        const statusText =
-          task.status === "done"
-            ? "Done"
-            : task.status === "in_progress"
-            ? "In Progress"
-            : "To Do";
+  noTasksMsg.style.display = "none";
+  container.style.display = "flex";
+  container.innerHTML = tasks
+    .map((task) => {
+      const statusBadge =
+        task.status === "done"
+          ? "bg-success"
+          : task.status === "in_progress"
+          ? "bg-warning text-dark"
+          : "bg-secondary";
 
-        const isOwner = task.owner.username === currentUsername;
-        const editDeleteButtons = isOwner
-          ? `
-        <a href="/task/${task.id}/update/" class="btn btn-sm btn-outline-warning">Edit</a>
-        <button onclick="deleteTask(${task.id})" class="btn btn-sm btn-outline-danger">Delete</button>
-      `
-          : "";
+      const statusText =
+        task.status === "done"
+          ? "Done"
+          : task.status === "in_progress"
+          ? "In Progress"
+          : "To Do";
 
-        return `
-        <div class="col-md-6 mb-3">
-          <div class="card h-100">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <h5 class="card-title">${escapeHtml(task.title)}</h5>
-                <span class="badge ${statusBadge}">${statusText}</span>
-              </div>
-              <p class="card-text">${escapeHtml(
-                truncate(task.description, 100)
-              )}</p>
-              <p class="text-muted small">
-                <strong>Owner:</strong> ${escapeHtml(task.owner.username)}<br>
-                <strong>Created:</strong> ${new Date(
-                  task.created_at
-                ).toLocaleDateString()}
-              </p>
-              <div class="d-flex gap-2">
-<a href="/tasks/${task.id}/" class="btn btn-sm btn-outline-primary">View</a>
-                ${editDeleteButtons}
-              </div>
+      const isOwner = task.owner_username === currentUsername;
+      const editDeleteButtons = isOwner
+        ? `
+      <a href="/tasks/${task.id}/edit/" class="btn btn-sm btn-outline-warning">Edit</a>
+      <button onclick="deleteTask(${task.id})" class="btn btn-sm btn-outline-danger">Delete</button>
+    `
+        : "";
+
+      return `
+      <div class="col-md-6 mb-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h5 class="card-title">${escapeHtml(task.title)}</h5>
+              <span class="badge ${statusBadge}">${statusText}</span>
+            </div>
+            <p class="card-text">${escapeHtml(truncate(task.description, 100))}</p>
+            <p class="text-muted small">
+              <strong>Owner:</strong> ${escapeHtml(task.owner_username)}<br>
+              <strong>Created:</strong> ${new Date(task.created_at).toLocaleDateString()}
+            </p>
+            <div class="d-flex gap-2">
+              <a href="/tasks/${task.id}/" class="btn btn-sm btn-outline-primary">View</a>
+              ${editDeleteButtons}
             </div>
           </div>
         </div>
-      `;
-      })
-      .join("");
-  }
+      </div>
+    `;
+    })
+    .join("");
+}
 
   async function deleteTask(taskId) {
     if (!confirm("Are you sure you want to delete this task?")) return;
