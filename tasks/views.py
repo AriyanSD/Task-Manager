@@ -37,7 +37,7 @@ class TaskUpdate(LoginRequiredMixin,TemplateView):
         ctx["task_id"] = task_id 
         ctx["form"]=TaskForm()
         return ctx
-    
+"""
 class TaskDelete(LoginRequiredMixin,TemplateView):
     template_name = "task_confirm_delete.html"
 
@@ -50,3 +50,4 @@ class TaskDelete(LoginRequiredMixin,TemplateView):
         ctx["task_id"] = task_id
 
         return ctx
+"""
