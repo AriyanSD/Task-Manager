@@ -59,7 +59,7 @@ A task management application built using **Django**, **Django REST Framework**,
 
 ## 🌐 Live Demo
 
-The project is deployed on PythonAnywhere:
+The project is deployed on PythonAnywhere ,the debugg mode still is active:
 **https://ariyansd.pythonanywhere.com/**
 
 ### Test Accounts
